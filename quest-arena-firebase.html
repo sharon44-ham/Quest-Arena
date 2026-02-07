@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quest Arena - Live Multiplayer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 1200px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .live-indicator {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-top: 10px;
+        }
+
+        .live-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            margin-right: 5px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .game-area {
+            padding: 30px;
+            min-height: 400px;
+        }
+
+        .start-screen {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .start-screen h2 {
+            color: #495057;
+            margin-bottom: 20px;
+        }
+
+        .start-screen p {
+            color: #6c757d;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .player-name-input {
+            margin-bottom: 30px;
+        }
+
+        .player-name-input input {
+            padding: 12px 20px;
+            font-size: 1.1em;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            width: 300px;
+            max-width: 100%;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4);
+        }
+
+        .game-canvas {
+            background: linear-gradient(to bottom, #87ceeb 0%, #98d8e8 50%, #90ee90 50%, #76c776 100%);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            position: relative;
+            height: 300px;
+            overflow: hidden;
+        }
+
+        .platform {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 80px;
+            background: #8b4513;
+            border-top: 5px solid #654321;
+        }
+
+        .monkey {
+            position: absolute;
+            bottom: 80px;
+            font-size: 3em;
+            transition: left 0.5s ease;
+        }
+
+        .cage {
+            position: absolute;
+            bottom: 80px;
+            right: 50px;
+            font-size: 4em;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .question-container {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .question-category {
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .question-number {
+            color: #6c757d;
+            font-weight: bold;
+        }
+
+        .question-text {
+            font-size: 1.2em;
+            color: #212529;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .options {
+            display: grid;
+            gap: 10px;
+        }
+
+        .option {
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #e7edff;
+        }
+
+        .option.correct {
+            border-color: #28a745;
+            background: #d4edda;
+        }
+
+        .option.incorrect {
+            border-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .submit-btn {
+            margin-top: 20px;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .feedback.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .leaderboard {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .leaderboard h3 {
+            margin-bottom: 15px;
+            color: #495057;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .leaderboard-entry {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .leaderboard-entry.gold {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            font-weight: bold;
+        }
+
+        .leaderboard-entry.silver {
+            background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
+            font-weight: bold;
+        }
+
+        .leaderboard-entry.bronze {
+            background: linear-gradient(135deg, #cd7f32 0%, #e8a87c 100%);
+            font-weight: bold;
+        }
+
+        .rank {
+            font-size: 1.5em;
+            font-weight: bold;
+            min-width: 40px;
+        }
+
+        .player-info {
+            flex: 1;
+            margin: 0 15px;
+        }
+
+        .player-name {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .player-stats {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        .player-score {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .completion-screen {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .completion-screen h2 {
+            color: #28a745;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .trophy {
+            font-size: 5em;
+            margin-bottom: 20px;
+        }
+
+        .rank-badge {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .animate-bounce {
+            animation: bounce 0.5s ease;
+        }
+
+        .empty-leaderboard {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .current-rank {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            margin: 20px auto;
+            display: inline-block;
+            font-size: 1.1em;
+        }
+
+        .setup-notice {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px;
+            color: #856404;
+        }
+
+        .setup-notice h3 {
+            margin-bottom: 10px;
+            color: #856404;
+        }
+
+        .setup-notice code {
+            background: #fff;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #d63384;
+        }
+
+        .setup-notice ol {
+            text-align: left;
+            margin: 15px 0;
+            padding-left: 20px;
+        }
+
+        .setup-notice li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>🎮 Quest Arena 🎮</h1>
+            <p>Solve quests to help the monkey reach the bananas!</p>
+            <div class="live-indicator" id="liveIndicator">
+                <span class="live-dot"></span>
+                <span id="connectionStatus">Connecting...</span>
+            </div>
+        </div>
+
+        <div class="game-stats">
+            <div class="stat">
+                <div class="stat-label">Player</div>
+                <div class="stat-value" id="playerName">-</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Quest</div>
+                <div class="stat-value"><span id="currentQuest">0</span> / <span id="totalQuests">10</span></div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Score</div>
+                <div class="stat-value" id="score">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">Time</div>
+                <div class="stat-value" id="timer">0:00</div>
+            </div>
+        </div>
+
+        <div class="game-area" id="gameArea">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Loading Quest Arena...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        
+       // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyB_Rk01M-c6B4Nu_TyUcThaJC9giK_RUmg",
+  authDomain: "quest-arena.firebaseapp.com",
+  databaseURL: "https://quest-arena-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "quest-arena",
+  storageBucket: "quest-arena.firebasestorage.app",
+  messagingSenderId: "728617530718",
+  appId: "1:728617530718:web:5778ca1c39b2e32c704bcf",
+  measurementId: "G-KTFZRQJ98G"
+};
+
+
+
+        // Check if Firebase is configured
+        const isConfigured = firebaseConfig.apiKey !== "YOUR_API_KEY_HERE";
+
+        let app, database;
+        
+        if (isConfigured) {
+            try {
+                app = initializeApp(firebaseConfig);
+                database = getDatabase(app);
+                document.getElementById('connectionStatus').textContent = 'Live 🔴';
+                document.getElementById('liveIndicator').style.background = '#28a745';
+            } catch (error) {
+                console.error("Firebase initialization error:", error);
+                showSetupInstructions();
+            }
+        } else {
+            showSetupInstructions();
+        }
+
+        // Game state
+        const gameState = {
+            playerName: '',
+            currentQuest: 0,
+            totalQuests: 10,
+            score: 0,
+            startTime: null,
+            selectedOption: null,
+            answered: false,
+            playerId: null
+        };
+
+        let timerInterval;
+        let leaderboardData = [];
+
+        // Questions database
+        const questions = [
+            {
+                category: "Data Structures",
+                question: "What is the time complexity of searching for an element in a balanced Binary Search Tree?",
+                options: ["O(n)", "O(log n)", "O(n²)", "O(1)"],
+                correct: 1
+            },
+            {
+                category: "Programming",
+                question: "Which of the following is NOT a valid Python data type?",
+                options: ["list", "tuple", "array", "dictionary"],
+                correct: 2
+            },
+            {
+                category: "Operating Systems",
+                question: "What scheduling algorithm can cause starvation?",
+                options: ["Round Robin", "First Come First Serve", "Priority Scheduling", "Shortest Job First"],
+                correct: 2
+            },
+            {
+                category: "Algorithms",
+                question: "Which sorting algorithm has the best average-case time complexity?",
+                options: ["Bubble Sort", "Merge Sort", "Insertion Sort", "Selection Sort"],
+                correct: 1
+            },
+            {
+                category: "Database",
+                question: "What does ACID stand for in database transactions?",
+                options: [
+                    "Atomicity, Consistency, Isolation, Durability",
+                    "Authentication, Consistency, Integrity, Data",
+                    "Atomicity, Calculation, Isolation, Durability",
+                    "Access, Consistency, Isolation, Distribution"
+                ],
+                correct: 0
+            },
+            {
+                category: "Programming",
+                question: "In object-oriented programming, what is polymorphism?",
+                options: [
+                    "Multiple classes with same name",
+                    "Ability of objects to take multiple forms",
+                    "Creating multiple objects",
+                    "Using multiple inheritance"
+                ],
+                correct: 1
+            },
+            {
+                category: "Networks",
+                question: "Which layer of the OSI model handles routing?",
+                options: ["Physical Layer", "Data Link Layer", "Network Layer", "Transport Layer"],
+                correct: 2
+            },
+            {
+                category: "Data Structures",
+                question: "Which data structure uses LIFO (Last In First Out) principle?",
+                options: ["Queue", "Stack", "Array", "Linked List"],
+                correct: 1
+            },
+            {
+                category: "Algorithms",
+                question: "What is the purpose of Dynamic Programming?",
+                options: [
+                    "To write dynamic code",
+                    "To solve problems by breaking them into overlapping subproblems",
+                    "To create dynamic arrays",
+                    "To program dynamically typed languages"
+                ],
+                correct: 1
+            },
+            {
+                category: "Programming",
+                question: "What will be the output of: print(type([]) == list) in Python?",
+                options: ["False", "True", "Error", "None"],
+                correct: 1
+            }
+        ];
+
+        function showSetupInstructions() {
+            const gameArea = document.getElementById('gameArea');
+            gameArea.innerHTML = `
+                <div class="setup-notice">
+                    <h3>🔧 Firebase Setup Required</h3>
+                    <p><strong>To enable multiplayer functionality, follow these steps:</strong></p>
+                    <ol>
+                        <li>Go to <a href="https://console.firebase.google.com/" target="_blank">Firebase Console</a></li>
+                        <li>Create a new project (or use existing)</li>
+                        <li>Enable <strong>Realtime Database</strong> in the Firebase Console</li>
+                        <li>Set database rules to test mode:
+                            <pre style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin: 10px 0;">
+{
+  "rules": {
+    ".read": true,
+    ".write": true
+  }
+}</pre>
+                        </li>
+                        <li>Go to Project Settings → Your apps → Add web app</li>
+                        <li>Copy your Firebase config and replace it in the HTML file (line 517)</li>
+                        <li>Reload the page</li>
+                    </ol>
+                    <p style="margin-top: 20px;"><strong>Note:</strong> For production use, implement proper security rules!</p>
+                </div>
+            `;
+            document.getElementById('connectionStatus').textContent = 'Setup Required';
+            document.getElementById('liveIndicator').style.background = '#ffc107';
+        }
+
+        // Load leaderboard from Firebase
+        function loadLeaderboard() {
+            if (!isConfigured) return;
+            
+            const leaderboardRef = ref(database, 'leaderboard');
+            onValue(leaderboardRef, (snapshot) => {
+                leaderboardData = [];
+                snapshot.forEach((childSnapshot) => {
+                    leaderboardData.push({
+                        id: childSnapshot.key,
+                        ...childSnapshot.val()
+                    });
+                });
+                
+                // Sort by score (desc), then time (asc)
+                leaderboardData.sort((a, b) => {
+                    if (b.score !== a.score) return b.score - a.score;
+                    return a.time - b.time;
+                });
+
+                // Refresh display if on start screen
+                if (document.querySelector('.start-screen')) {
+                    initGame();
+                }
+            });
+        }
+
+        // Save to Firebase
+        async function saveToLeaderboard(playerData) {
+            if (!isConfigured) return;
+            
+            try {
+                const leaderboardRef = ref(database, 'leaderboard');
+                const newEntry = await push(leaderboardRef, playerData);
+                gameState.playerId = newEntry.key;
+                return newEntry.key;
+            } catch (error) {
+                console.error("Error saving to leaderboard:", error);
+            }
+        }
+
+        function initGame() {
+            if (!isConfigured) {
+                showSetupInstructions();
+                return;
+            }
+            showStartScreen();
+        }
+
+        function showStartScreen() {
+            const gameArea = document.getElementById('gameArea');
+            
+            let leaderboardHTML = '';
+            if (leaderboardData.length > 0) {
+                leaderboardHTML = `
+                    <div class="leaderboard">
+                        <h3>🏆 Live Leaderboard (Top 10)</h3>
+                        ${leaderboardData.slice(0, 10).map((entry, index) => {
+                            const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+                            const entryClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
+                            const minutes = Math.floor(entry.time / 60);
+                            const seconds = entry.time % 60;
+                            
+                            return `
+                                <div class="leaderboard-entry ${entryClass}">
+                                    <div class="rank">${rankEmoji}</div>
+                                    <div class="player-info">
+                                        <div class="player-name">${entry.name}</div>
+                                        <div class="player-stats">
+                                            Time: ${minutes}:${seconds.toString().padStart(2, '0')} | 
+                                            Accuracy: ${entry.accuracy}%
+                                        </div>
+                                    </div>
+                                    <div class="player-score">${entry.score} pts</div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            } else {
+                leaderboardHTML = `
+                    <div class="empty-leaderboard">
+                        <p style="font-size: 3em;">🏁</p>
+                        <p>No players yet. Be the first to complete the quest!</p>
+                    </div>
+                `;
+            }
+
+            gameArea.innerHTML = `
+                <div class="start-screen">
+                    <h2>Welcome to Quest Arena! 🐵</h2>
+                    <p>Help the monkey reach the bananas by solving coding and CS fundamental questions.<br>
+                    Compete with players from anywhere in real-time!</p>
+                    <div class="player-name-input">
+                        <input type="text" id="nameInput" placeholder="Enter your name" maxlength="20">
+                    </div>
+                    <div class="controls">
+                        <button class="btn" onclick="startGame()">Start Quest</button>
+                    </div>
+                    ${leaderboardHTML}
+                </div>
+            `;
+            
+            const nameInput = document.getElementById('nameInput');
+            if (nameInput) {
+                nameInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') window.startGame();
+                });
+                nameInput.focus();
+            }
+        }
+
+        window.startGame = function() {
+            const nameInput = document.getElementById('nameInput');
+            const name = nameInput.value.trim();
+            
+            if (!name) {
+                alert('Please enter your name!');
+                nameInput.focus();
+                return;
+            }
+
+            gameState.playerName = name;
+            gameState.currentQuest = 0;
+            gameState.score = 0;
+            gameState.startTime = Date.now();
+            gameState.answered = false;
+
+            document.getElementById('playerName').textContent = name;
+            
+            startTimer();
+            showGameCanvas();
+            loadQuestion();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                document.getElementById('timer').textContent = 
+                    `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function showGameCanvas() {
+            const gameArea = document.getElementById('gameArea');
+            const progress = (gameState.currentQuest / gameState.totalQuests) * 100;
+            const monkeyPosition = 50 + (progress / 100) * 800;
+
+            gameArea.innerHTML = `
+                <div class="game-canvas">
+                    <div class="monkey" id="monkey" style="left: ${monkeyPosition}px;">🐵</div>
+                    <div class="cage">🍌</div>
+                    <div class="platform"></div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: ${progress}%">
+                        ${Math.round(progress)}%
+                    </div>
+                </div>
+                <div id="questionArea"></div>
+            `;
+        }
+
+        function loadQuestion() {
+            if (gameState.currentQuest >= gameState.totalQuests) {
+                showCompletionScreen();
+                return;
+            }
+
+            const question = questions[gameState.currentQuest];
+            const questionArea = document.getElementById('questionArea');
+            
+            gameState.selectedOption = null;
+            gameState.answered = false;
+
+            questionArea.innerHTML = `
+                <div class="question-container">
+                    <div class="question-header">
+                        <span class="question-category">${question.category}</span>
+                        <span class="question-number">Quest ${gameState.currentQuest + 1} of ${gameState.totalQuests}</span>
+                    </div>
+                    <div class="question-text">${question.question}</div>
+                    <div class="options" id="options">
+                        ${question.options.map((option, index) => `
+                            <div class="option" onclick="selectOption(${index})">
+                                ${String.fromCharCode(65 + index)}. ${option}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <button class="btn submit-btn" onclick="submitAnswer()">Submit Answer</button>
+                    <div id="feedback"></div>
+                </div>
+            `;
+
+            document.getElementById('currentQuest').textContent = gameState.currentQuest;
+        }
+
+        window.selectOption = function(index) {
+            if (gameState.answered) return;
+
+            gameState.selectedOption = index;
+            
+            const options = document.querySelectorAll('.option');
+            options.forEach((opt, i) => {
+                opt.classList.remove('selected');
+                if (i === index) {
+                    opt.classList.add('selected');
+                }
+            });
+        }
+
+        window.submitAnswer = function() {
+            if (gameState.answered) return;
+            if (gameState.selectedOption === null) {
+                alert('Please select an answer!');
+                return;
+            }
+
+            gameState.answered = true;
+            const question = questions[gameState.currentQuest];
+            const isCorrect = gameState.selectedOption === question.correct;
+            
+            const options = document.querySelectorAll('.option');
+            options.forEach((opt, i) => {
+                if (i === question.correct) {
+                    opt.classList.add('correct');
+                } else if (i === gameState.selectedOption && !isCorrect) {
+                    opt.classList.add('incorrect');
+                }
+            });
+
+            const feedback = document.getElementById('feedback');
+            
+            if (isCorrect) {
+                gameState.score += 100;
+                gameState.currentQuest++;
+                document.getElementById('score').textContent = gameState.score;
+                
+                feedback.innerHTML = '✅ Correct! Moving forward...';
+                feedback.className = 'feedback correct';
+
+                const monkey = document.getElementById('monkey');
+                monkey.classList.add('animate-bounce');
+                
+                setTimeout(() => {
+                    showGameCanvas();
+                    loadQuestion();
+                }, 2000);
+            } else {
+                feedback.innerHTML = `❌ Incorrect! The correct answer was: ${String.fromCharCode(65 + question.correct)}. ${question.options[question.correct]}`;
+                feedback.className = 'feedback incorrect';
+                
+                setTimeout(() => {
+                    gameState.currentQuest++;
+                    showGameCanvas();
+                    loadQuestion();
+                }, 3000);
+            }
+        }
+
+        async function showCompletionScreen() {
+            clearInterval(timerInterval);
+            
+            const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            const accuracy = Math.round((gameState.score / (gameState.totalQuests * 100)) * 100);
+
+            const playerData = {
+                name: gameState.playerName,
+                score: gameState.score,
+                time: elapsed,
+                accuracy: accuracy,
+                timestamp: Date.now()
+            };
+            
+            await saveToLeaderboard(playerData);
+
+            // Wait a bit for leaderboard to update
+            setTimeout(() => {
+                const currentRank = leaderboardData.findIndex(entry => 
+                    entry.id === gameState.playerId
+                ) + 1;
+
+                let rankBadge = '';
+                let rankMessage = '';
+                
+                if (currentRank === 1) {
+                    rankBadge = '🥇';
+                    rankMessage = 'FIRST PLACE! You\'re the champion!';
+                } else if (currentRank === 2) {
+                    rankBadge = '🥈';
+                    rankMessage = 'SECOND PLACE! Amazing performance!';
+                } else if (currentRank === 3) {
+                    rankBadge = '🥉';
+                    rankMessage = 'THIRD PLACE! Great job!';
+                } else {
+                    rankBadge = '🏆';
+                    rankMessage = `You ranked #${currentRank}!`;
+                }
+
+                const gameArea = document.getElementById('gameArea');
+                gameArea.innerHTML = `
+                    <div class="completion-screen">
+                        <div class="rank-badge">${rankBadge}</div>
+                        <h2>Quest Complete!</h2>
+                        <div class="current-rank">${rankMessage}</div>
+                        <p style="font-size: 1.3em; color: #495057; margin-bottom: 30px;">
+                            Congratulations, ${gameState.playerName}! 🎉<br>
+                            You've helped the monkey reach the bananas!
+                        </p>
+                        <div style="background: #f8f9fa; border-radius: 10px; padding: 20px; display: inline-block; margin-bottom: 30px;">
+                            <div style="font-size: 1.2em; margin-bottom: 10px;">
+                                <strong>Final Score:</strong> ${gameState.score} points
+                            </div>
+                            <div style="font-size: 1.2em; margin-bottom: 10px;">
+                                <strong>Time Taken:</strong> ${timeString}
+                            </div>
+                            <div style="font-size: 1.2em;">
+                                <strong>Accuracy:</strong> ${accuracy}%
+                            </div>
+                        </div>
+                        <br>
+                        <div class="controls">
+                            <button class="btn" onclick="location.reload()">View Leaderboard</button>
+                            <button class="btn btn-secondary" onclick="startGame()">Play Again</button>
+                        </div>
+                        
+                        <div class="leaderboard">
+                            <h3>🏆 Current Top 5</h3>
+                            ${leaderboardData.slice(0, 5).map((entry, index) => {
+                                const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
+                                const entryClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
+                                const entryMinutes = Math.floor(entry.time / 60);
+                                const entrySeconds = entry.time % 60;
+                                const isCurrentPlayer = entry.id === gameState.playerId;
+                                
+                                return `
+                                    <div class="leaderboard-entry ${entryClass}" style="${isCurrentPlayer ? 'border: 3px solid #667eea;' : ''}">
+                                        <div class="rank">${rankEmoji}</div>
+                                        <div class="player-info">
+                                            <div class="player-name">${entry.name} ${isCurrentPlayer ? '(You!)' : ''}</div>
+                                            <div class="player-stats">
+                                                Time: ${entryMinutes}:${entrySeconds.toString().padStart(2, '0')} | 
+                                                Accuracy: ${entry.accuracy}%
+                                            </div>
+                                        </div>
+                                        <div class="player-score">${entry.score} pts</div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }, 500);
+        }
+
+        // Initialize game on load
+        if (isConfigured) {
+            loadLeaderboard();
+            initGame();
+        }
+    </script>
+</body>
+</html>
