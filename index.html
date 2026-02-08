@@ -14,12 +14,11 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background-attachment: fixed;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             padding: 20px;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         .game-container {
@@ -28,8 +27,9 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.4);
             max-width: 1400px;
             width: 100%;
-            overflow: hidden;
+            overflow: visible;
             position: relative;
+            margin: 20px auto;
         }
 
         .header {
@@ -121,7 +121,6 @@
 
         .game-area {
             padding: 20px;
-            min-height: 500px;
         }
 
         /* 2D GAME CANVAS */
