@@ -857,25 +857,29 @@
             return starsHTML;
         }
 
-        function loadLeaderboard() {
-            if (!database) return;
-            
-            const leaderboardRef = ref(database, 'leaderboard');
-            onValue(leaderboardRef, (snapshot) => {
-                leaderboardData = [];
-                snapshot.forEach((childSnapshot) => {
-                    leaderboardData.push({
-                        id: childSnapshot.key,
-                        ...childSnapshot.val()
-                    });
-                });
-                
-                leaderboardData.sort((a, b) => {
-                    if (b.score !== a.score) return b.score - a.score;
-                    return a.time - b.time;
-                });
+       function loadLeaderboard() {
+    if (!database) return;
+
+    const leaderboardRef = ref(database, 'leaderboard');
+    onValue(leaderboardRef, (snapshot) => {
+        leaderboardData = [];
+
+        snapshot.forEach((childSnapshot) => {
+            leaderboardData.push({
+                id: childSnapshot.key,
+                ...childSnapshot.val()
             });
-        }
+        });
+
+        leaderboardData.sort((a, b) => {
+            if (b.score !== a.score) return b.score - a.score;
+            return a.time - b.time;
+        });
+
+     showStartScreen();
+    });
+}
+
 
         async function saveToLeaderboard(playerData) {
             if (!database) return;
@@ -1253,7 +1257,7 @@
         }
 
         loadLeaderboard();
-        showStartScreen();
+        
     </script>
 </body>
 </html>
