@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quest Arena - Interactive 2D Game</title>
+    <title>Quest Arena - The Journey</title>
     <style>
         * {
             margin: 0;
@@ -12,476 +12,438 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            background-attachment: fixed;
+            font-family: 'Arial', sans-serif;
+            background: #1a1a2e;
             min-height: 100vh;
             padding: 20px;
-            overflow-x: hidden;
-            overflow-y: auto;
+            color: #e0e0e0;
         }
 
-        .game-container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        .container {
             max-width: 1400px;
-            width: 100%;
-            overflow: visible;
-            position: relative;
-            margin: 20px auto;
+            margin: 0 auto;
         }
 
+        /* Header with game-like feel */
         .header {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            padding: 20px;
-            text-align: center;
-            color: white;
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border: 3px solid #e94560;
+            box-shadow: 0 8px 20px rgba(233, 69, 96, 0.3), inset 0 -3px 0 rgba(0,0,0,0.3);
             position: relative;
-            overflow: hidden;
         }
 
         .header::before {
-            content: '⭐';
-            position: absolute;
-            font-size: 3em;
-            opacity: 0.2;
-            animation: float 3s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-20px) rotate(180deg); }
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            animation: glow 2s ease-in-out infinite;
-        }
-
-        @keyframes glow {
-            0%, 100% { text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
-            50% { text-shadow: 0 0 20px rgba(255,255,255,0.8), 2px 2px 4px rgba(0,0,0,0.3); }
-        }
-
-        .live-indicator {
-            display: inline-block;
-            background: #28a745;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.8em;
-            margin-top: 10px;
-        }
-
-        .live-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            background: white;
-            border-radius: 50%;
-            margin-right: 5px;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.3; transform: scale(1.2); }
-        }
-
-        .game-stats {
-            display: flex;
-            justify-content: space-around;
-            padding: 15px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-bottom: 3px solid #dee2e6;
-        }
-
-        .stat {
-            text-align: center;
-            position: relative;
-        }
-
-        .stat-label {
-            font-size: 0.9em;
-            color: #6c757d;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .stat-value {
-            font-size: 1.8em;
-            font-weight: bold;
-            color: #495057;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-        }
-
-        .game-area {
-            padding: 20px;
-        }
-
-        /* 2D GAME CANVAS */
-        .game-canvas {
-            background: linear-gradient(to bottom, 
-                #87ceeb 0%, 
-                #98d8e8 40%, 
-                #90ee90 60%, 
-                #76c776 100%);
-            border-radius: 15px;
-            margin-bottom: 20px;
-            position: relative;
-            height: 450px;
-            overflow: hidden;
-            border: 4px solid #333;
-            box-shadow: inset 0 0 30px rgba(0,0,0,0.2);
-        }
-
-        /* Clouds */
-        .cloud {
-            position: absolute;
-            top: 20px;
-            background: white;
-            border-radius: 100px;
-            opacity: 0.7;
-            animation: moveCloud 20s linear infinite;
-        }
-
-        .cloud::before,
-        .cloud::after {
-            content: '';
-            position: absolute;
-            background: white;
-            border-radius: 100px;
-        }
-
-        .cloud1 {
-            width: 80px;
-            height: 30px;
-            left: -100px;
-            animation-duration: 25s;
-        }
-
-        .cloud2 {
-            width: 100px;
-            height: 35px;
-            left: -150px;
-            top: 60px;
-            animation-duration: 30s;
-            animation-delay: 5s;
-        }
-
-        @keyframes moveCloud {
-            from { transform: translateX(0); }
-            to { transform: translateX(calc(100vw + 200px)); }
-        }
-
-        /* Platforms */
-        .platform {
-            position: absolute;
-            background: linear-gradient(to bottom, #8b4513 0%, #654321 100%);
-            border: 3px solid #4a2511;
-            border-radius: 5px;
-            box-shadow: 0 4px 0 #3d1f0d;
-        }
-
-        .ground {
-            bottom: 0;
-            width: 100%;
-            height: 100px;
-        }
-
-        .platform-mid {
-            width: 200px;
-            height: 20px;
-        }
-
-        /* Character */
-        .monkey {
-            position: absolute;
-            font-size: 4em;
-            transition: all 0.3s ease;
-            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
-            z-index: 10;
-        }
-
-        .monkey.jumping {
-            animation: jump 0.5s ease;
-        }
-
-        @keyframes jump {
-            0%, 100% { transform: translateY(0) rotate(0deg); }
-            50% { transform: translateY(-60px) rotate(15deg); }
-        }
-
-        .monkey.celebrating {
-            animation: celebrate 0.6s ease infinite;
-        }
-
-        @keyframes celebrate {
-            0%, 100% { transform: scale(1) rotate(0deg); }
-            25% { transform: scale(1.1) rotate(-10deg); }
-            75% { transform: scale(1.1) rotate(10deg); }
-        }
-
-        /* Goal */
-        .cage {
-            position: absolute;
-            font-size: 5em;
-            filter: drop-shadow(0 0 10px rgba(255,215,0,0.6));
-            animation: pulse-cage 1.5s ease-in-out infinite;
-            z-index: 5;
-        }
-
-        @keyframes pulse-cage {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
-        /* Collectibles */
-        .collectible {
-            position: absolute;
-            font-size: 2.5em;
-            animation: rotate-collect 3s linear infinite;
-            cursor: pointer;
-            transition: all 0.2s;
-            z-index: 8;
-        }
-
-        .collectible:hover {
-            transform: scale(1.3);
-        }
-
-        @keyframes rotate-collect {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .collectible.collected {
-            animation: collect-anim 0.5s ease forwards;
-        }
-
-        @keyframes collect-anim {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(2) translateY(-50px); opacity: 0; }
-        }
-
-        /* Obstacles */
-        .obstacle {
-            position: absolute;
-            font-size: 3em;
-            animation: obstacle-move 3s ease-in-out infinite;
-            z-index: 7;
-        }
-
-        @keyframes obstacle-move {
-            0%, 100% { transform: translateX(0); }
-            50% { transform: translateX(30px); }
-        }
-
-        /* Progress bar with segments */
-        .progress-container {
-            width: 100%;
-            margin-bottom: 20px;
-        }
-
-        .progress-bar {
-            width: 100%;
-            height: 40px;
-            background: #e9ecef;
-            border-radius: 20px;
-            overflow: hidden;
-            position: relative;
-            border: 3px solid #dee2e6;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #f093fb 0%, #f5576c 50%, #ffd700 100%);
-            transition: width 0.5s ease;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 15px;
-            color: white;
-            font-weight: bold;
-            font-size: 1.1em;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
-            position: relative;
-        }
-
-        .progress-fill::after {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            animation: shimmer 2s infinite;
+            height: 3px;
+            background: linear-gradient(90deg, #e94560, #ffd700, #4ecca3, #e94560);
+            animation: borderShift 3s linear infinite;
         }
 
-        @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+        @keyframes borderShift {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
         }
 
-        .progress-segments {
+        .header h1 {
+            color: #ffd700;
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.3), 0 0 20px rgba(255,215,0,0.5);
+            letter-spacing: 2px;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .stat-item {
+            background: rgba(0,0,0,0.3);
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: 2px solid #2a3f5f;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        .stat-label {
+            color: #4ecca3;
+            font-size: 0.85em;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            color: #ffd700;
+            font-weight: bold;
+            font-size: 1.4em;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
+        }
+
+        /* Game Canvas - Minecraft/Platformer style */
+        .game-canvas {
+            background: 
+                linear-gradient(rgba(15, 52, 96, 0.3), rgba(15, 52, 96, 0.3)),
+                linear-gradient(to bottom, #0a1e3d 0%, #16213e 40%, #1a2840 70%, #0f1820 100%);
+            border-radius: 15px;
+            height: 450px;
+            margin-bottom: 25px;
+            position: relative;
+            border: 4px solid #2a3f5f;
+            overflow: hidden;
+            box-shadow: 
+                inset 0 0 60px rgba(0,0,0,0.6),
+                0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* Pixelated stars background */
+        .stars {
             position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
+        }
+
+        .star {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+
+        /* Ground platform */
+        .ground {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: 
+                repeating-linear-gradient(
+                    90deg,
+                    #2a3f5f 0px,
+                    #2a3f5f 40px,
+                    #3a4f6f 40px,
+                    #3a4f6f 80px
+                );
+            border-top: 4px solid #4a6f9f;
+            box-shadow: inset 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .ground::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #5a8fbf;
+        }
+
+        /* Checkpoints - Platform style */
+        .checkpoint {
+            position: absolute;
+            width: 55px;
+            height: 55px;
             display: flex;
-            justify-content: space-evenly;
-            pointer-events: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            z-index: 5;
         }
 
-        .segment {
-            width: 2px;
+        .checkpoint-inner {
+            width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.2);
+            background: linear-gradient(135deg, #2a3f5f 0%, #1a2f4f 100%);
+            border: 3px solid #3a4f6f;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            box-shadow: 
+                0 5px 0 #1a2840,
+                0 8px 15px rgba(0,0,0,0.5);
+            position: relative;
         }
 
-        /* Question Container */
-        .question-container {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 15px;
-            padding: 30px;
+        .checkpoint-inner::before {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            right: 3px;
+            height: 40%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.1), transparent);
+            border-radius: 8px 8px 0 0;
+        }
+
+        .checkpoint.active .checkpoint-inner {
+            background: linear-gradient(135deg, #e94560 0%, #d63550 100%);
+            border-color: #ff6b81;
+            color: #fff;
+            animation: pulse 1.5s ease-in-out infinite;
+            box-shadow: 
+                0 5px 0 #b92540,
+                0 8px 15px rgba(233, 69, 96, 0.6),
+                0 0 30px rgba(233, 69, 96, 0.4);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .checkpoint.completed .checkpoint-inner {
+            background: linear-gradient(135deg, #4ecca3 0%, #3eb c93 100%);
+            border-color: #6fdc9f;
+            color: #0a3d2a;
+            box-shadow: 
+                0 5px 0 #2a9c73,
+                0 8px 15px rgba(78, 204, 163, 0.6),
+                0 0 20px rgba(78, 204, 163, 0.3);
+        }
+
+        .checkpoint.failed .checkpoint-inner {
+            background: linear-gradient(135deg, #5a5a5a 0%, #3a3a3a 100%);
+            border-color: #6a6a6a;
+            color: #888;
+            opacity: 0.5;
+        }
+
+        /* Path lines - Platform style */
+        .path-line {
+            position: absolute;
+            height: 6px;
+            background: #2a3f5f;
+            transform-origin: left center;
+            box-shadow: 0 3px 0 rgba(0,0,0,0.3), 0 5px 10px rgba(0,0,0,0.2);
+            border-radius: 3px;
+        }
+
+        .path-line.completed {
+            background: linear-gradient(90deg, #4ecca3 0%, #6fdc9f 100%);
+            box-shadow: 
+                0 3px 0 #2a9c73,
+                0 5px 10px rgba(78, 204, 163, 0.4),
+                0 0 15px rgba(78, 204, 163, 0.3);
+        }
+
+        .path-line.failed {
+            background: linear-gradient(90deg, #5a5a5a 0%, #6a6a6a 100%);
+            box-shadow: 0 3px 0 rgba(0,0,0,0.5);
+            opacity: 0.5;
+        }
+
+        /* Character - Emoji style */
+        .character {
+            position: absolute;
+            transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 10;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+        }
+
+        .character.walking {
+            animation: walk-bounce 0.4s ease-in-out 2;
+        }
+
+        @keyframes walk-bounce {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(5deg); }
+        }
+
+        .character.stuck {
+            animation: stuck-shake 0.5s ease-in-out 3;
+        }
+
+        @keyframes stuck-shake {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            25% { transform: translateX(-8px) rotate(-5deg); }
+            75% { transform: translateX(8px) rotate(5deg); }
+        }
+
+        /* Story and Question boxes */
+        .story-box {
+            background: linear-gradient(135deg, #16213e 0%, #1a2840 100%);
+            padding: 20px 25px;
+            border-radius: 12px;
             margin-bottom: 20px;
-            border: 3px solid #dee2e6;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 3px solid #2a3f5f;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+            position: relative;
+        }
+
+        .story-box::before {
+            content: '📖';
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.5em;
+            opacity: 0.3;
+        }
+
+        .story-text {
+            color: #c0c0c0;
+            line-height: 1.8;
+            font-size: 1.1em;
+        }
+
+        .question-box {
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border: 3px solid #e94560;
+            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.3), inset 0 1px 0 rgba(255,255,255,0.1);
         }
 
         .question-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .question-category {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, #4ecca3 0%, #3ebc93 100%);
+            color: #0a3d2a;
             padding: 8px 20px;
-            border-radius: 25px;
-            font-size: 1em;
+            border-radius: 8px;
+            font-size: 0.9em;
             font-weight: bold;
-            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.4);
+            text-transform: uppercase;
+            box-shadow: 0 4px 0 #2a9c73, 0 6px 15px rgba(78, 204, 163, 0.3);
         }
 
         .question-number {
-            color: #6c757d;
+            color: #ffd700;
             font-weight: bold;
             font-size: 1.1em;
         }
 
         .question-text {
-            font-size: 1.4em;
-            color: #212529;
+            color: #e0e0e0;
+            font-size: 1.2em;
             margin-bottom: 25px;
-            line-height: 1.6;
-            font-weight: 500;
-            padding: 15px;
-            background: white;
+            line-height: 1.7;
+            padding: 20px;
+            background: rgba(0,0,0,0.3);
             border-radius: 10px;
-            border-left: 5px solid #667eea;
+            border-left: 4px solid #ffd700;
         }
 
         .options {
             display: grid;
             gap: 15px;
+            margin-bottom: 25px;
         }
 
         .option {
-            background: white;
-            border: 3px solid #dee2e6;
-            border-radius: 12px;
-            padding: 18px;
+            background: linear-gradient(135deg, #1a2840 0%, #16213e 100%);
+            border: 3px solid #2a3f5f;
+            padding: 18px 20px;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
+            color: #d0d0d0;
+            font-size: 1.05em;
             position: relative;
-            overflow: hidden;
-            font-size: 1.1em;
+            box-shadow: 0 4px 0 #0f1820, 0 6px 15px rgba(0,0,0,0.3);
         }
 
         .option::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
-            transition: left 0.5s;
-        }
-
-        .option:hover::before {
-            left: 100%;
+            top: 3px;
+            left: 3px;
+            right: 3px;
+            height: 40%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.05), transparent);
+            border-radius: 7px 7px 0 0;
+            pointer-events: none;
         }
 
         .option:hover {
-            border-color: #667eea;
-            background: #f0f4ff;
-            transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+            border-color: #4a6f9f;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #0f1820, 0 8px 20px rgba(74, 111, 159, 0.4);
         }
 
         .option.selected {
-            border-color: #667eea;
-            background: linear-gradient(135deg, #e7edff 0%, #f0f4ff 100%);
-            transform: scale(1.02);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            border-color: #ffd700;
+            background: linear-gradient(135deg, #2a3a20 0%, #1a2a10 100%);
+            box-shadow: 0 4px 0 #1a2a10, 0 6px 20px rgba(255, 215, 0, 0.4);
         }
 
         .option.correct {
-            border-color: #28a745;
-            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-            animation: correct-pulse 0.5s ease;
+            border-color: #4ecca3;
+            background: linear-gradient(135deg, #1a3d2a 0%, #0a2d1a 100%);
+            color: #4ecca3;
+            animation: correctPop 0.5s ease;
         }
 
-        @keyframes correct-pulse {
+        @keyframes correctPop {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            50% { transform: scale(1.02); }
         }
 
-        .option.incorrect {
-            border-color: #dc3545;
-            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-            animation: shake 0.5s ease;
+        .option.wrong {
+            border-color: #e94560;
+            background: linear-gradient(135deg, #3d1a2a 0%, #2d0a1a 100%);
+            color: #e94560;
+            animation: wrongShake 0.5s ease;
         }
 
-        @keyframes shake {
+        @keyframes wrongShake {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
+            25%, 75% { transform: translateX(-8px); }
+            50% { transform: translateX(8px); }
         }
 
+        /* Buttons - Game style */
         .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #0a0e27;
             border: none;
             padding: 15px 40px;
-            font-size: 1.3em;
-            border-radius: 50px;
+            font-size: 1.1em;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-            margin: 10px;
             font-weight: bold;
+            transition: all 0.2s;
+            box-shadow: 0 5px 0 #d4af37, 0 8px 20px rgba(255, 215, 0, 0.4);
             text-transform: uppercase;
             letter-spacing: 1px;
         }
 
         .btn:hover {
             transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+            box-shadow: 0 8px 0 #d4af37, 0 12px 25px rgba(255, 215, 0, 0.5);
         }
 
         .btn:active {
-            transform: translateY(-1px);
+            transform: translateY(2px);
+            box-shadow: 0 3px 0 #d4af37, 0 5px 15px rgba(255, 215, 0, 0.3);
         }
 
         .btn:disabled {
@@ -490,299 +452,262 @@
             transform: none;
         }
 
-        .submit-btn {
-            margin-top: 25px;
-        }
-
         .feedback {
             margin-top: 20px;
-            padding: 20px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 1.1em;
-            animation: slideIn 0.3s ease;
+            padding: 18px 25px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1.05em;
+            border: 3px solid;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .feedback.success {
+            background: linear-gradient(135deg, #1a3d2a 0%, #0a2d1a 100%);
+            border-color: #4ecca3;
+            color: #4ecca3;
         }
 
-        .feedback.correct {
-            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-            color: #155724;
-            border: 2px solid #28a745;
-        }
-
-        .feedback.incorrect {
-            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-            color: #721c24;
-            border: 2px solid #dc3545;
-        }
-
-        /* Particle effects */
-        .particle {
-            position: absolute;
-            pointer-events: none;
-            animation: particle-float 2s ease-out forwards;
-        }
-
-        @keyframes particle-float {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-100px) scale(0); }
+        .feedback.error {
+            background: linear-gradient(135deg, #3d1a2a 0%, #2d0a1a 100%);
+            border-color: #e94560;
+            color: #e94560;
         }
 
         /* Leaderboard */
         .leaderboard {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            background: linear-gradient(135deg, #16213e 0%, #1a2840 100%);
+            padding: 30px;
             border-radius: 15px;
-            padding: 25px;
-            margin-top: 20px;
-            border: 3px solid #dee2e6;
+            margin-top: 30px;
+            border: 3px solid #2a3f5f;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
         }
 
         .leaderboard h3 {
-            margin-bottom: 20px;
-            color: #495057;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            color: #ffd700;
+            margin-bottom: 25px;
             font-size: 1.8em;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
         }
 
         .leaderboard-entry {
-            background: white;
-            padding: 18px;
+            background: linear-gradient(135deg, #0f1820 0%, #16213e 100%);
+            padding: 18px 20px;
             margin-bottom: 12px;
-            border-radius: 12px;
+            border-radius: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            transition: all 0.3s;
+            border: 2px solid #2a3f5f;
+            box-shadow: 0 4px 0 #0a0e1a, 0 6px 15px rgba(0,0,0,0.3);
+            transition: all 0.2s;
         }
 
         .leaderboard-entry:hover {
             transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
         }
 
-        .leaderboard-entry.gold {
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            font-weight: bold;
-            border: 3px solid #ffa500;
-        }
-
-        .leaderboard-entry.silver {
-            background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
-            font-weight: bold;
-            border: 3px solid #a8a8a8;
-        }
-
-        .leaderboard-entry.bronze {
-            background: linear-gradient(135deg, #cd7f32 0%, #e8a87c 100%);
-            font-weight: bold;
-            border: 3px solid #b87333;
+        .leaderboard-entry.top {
+            border-color: #ffd700;
+            box-shadow: 0 4px 0 #d4af37, 0 6px 20px rgba(255, 215, 0, 0.3);
         }
 
         .rank {
-            font-size: 2em;
+            font-size: 1.5em;
             font-weight: bold;
             min-width: 50px;
+            color: #ffd700;
+            text-shadow: 2px 2px 0 rgba(0,0,0,0.3);
         }
 
         .player-info {
             flex: 1;
             margin: 0 20px;
-        }
-
-        .player-name {
-            font-size: 1.2em;
-            margin-bottom: 5px;
-        }
-
-        .player-stats {
-            font-size: 0.95em;
-            color: #6c757d;
+            color: #d0d0d0;
         }
 
         .player-score {
-            font-size: 1.5em;
+            color: #4ecca3;
             font-weight: bold;
-            color: #667eea;
+            font-size: 1.3em;
         }
 
-        /* Start screen */
-        .start-screen {
+        /* Start and End screens */
+        .start-screen, .end-screen {
             text-align: center;
-            padding: 40px;
+            padding: 50px 30px;
         }
 
-        .start-screen h2 {
-            color: #495057;
+        .start-screen h2, .end-screen h2 {
+            color: #ffd700;
+            font-size: 3em;
+            margin-bottom: 25px;
+            text-shadow: 4px 4px 0 rgba(0,0,0,0.3), 0 0 30px rgba(255,215,0,0.4);
+        }
+
+        .start-screen p, .end-screen p {
+            color: #c0c0c0;
+            margin-bottom: 35px;
+            line-height: 1.8;
+            font-size: 1.15em;
+        }
+
+        .name-input {
+            margin-bottom: 35px;
+        }
+
+        .name-input input {
+            padding: 15px 25px;
+            font-size: 1.1em;
+            border: 3px solid #2a3f5f;
+            border-radius: 10px;
+            background: #0f1820;
+            color: #ffd700;
+            width: 350px;
+            max-width: 100%;
+            box-shadow: inset 0 3px 8px rgba(0,0,0,0.5);
+        }
+
+        .name-input input:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: inset 0 3px 8px rgba(0,0,0,0.5), 0 0 20px rgba(255,215,0,0.3);
+        }
+
+        .character-selection {
+            margin: 30px 0;
+        }
+
+        .character-selection h3 {
+            color: #4ecca3;
             margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .character-grid {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .character-option {
+            background: linear-gradient(135deg, #16213e 0%, #1a2840 100%);
+            border: 3px solid #2a3f5f;
+            padding: 15px 25px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            box-shadow: 0 4px 0 #0f1820, 0 6px 15px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 140px;
+        }
+
+        .character-option:hover {
+            transform: translateY(-3px);
+            border-color: #4a6f9f;
+            box-shadow: 0 6px 0 #0f1820, 0 8px 20px rgba(74, 111, 159, 0.4);
+        }
+
+        .character-option.selected {
+            border-color: #ffd700;
+            background: linear-gradient(135deg, #2a3a20 0%, #1a2a10 100%);
+            box-shadow: 0 4px 0 #1a2a10, 0 6px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .character-icon {
             font-size: 2.5em;
         }
 
-        .start-screen p {
-            color: #6c757d;
-            margin-bottom: 30px;
-            font-size: 1.2em;
+        .character-label {
+            color: #c0c0c0;
+            font-weight: bold;
+            font-size: 1.1em;
         }
 
-        .player-name-input {
-            margin-bottom: 30px;
+        .character-option.selected .character-label {
+            color: #ffd700;
         }
 
-        .player-name-input input {
-            padding: 15px 25px;
-            font-size: 1.2em;
-            border: 3px solid #dee2e6;
-            border-radius: 12px;
-            width: 350px;
-            max-width: 100%;
-            transition: all 0.3s;
-        }
-
-        .player-name-input input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
-        }
-
-        .controls {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-
-        .completion-screen {
-            text-align: center;
-            padding: 40px;
-        }
-
-        .completion-screen h2 {
-            color: #28a745;
-            font-size: 3em;
-            margin-bottom: 20px;
-            animation: glow 2s ease-in-out infinite;
-        }
-
-        .rank-badge {
-            font-size: 5em;
-            margin-bottom: 20px;
-            animation: celebrate 1s ease-in-out infinite;
-        }
-
-        .current-rank {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 30px;
+        .score-card {
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            padding: 35px;
             border-radius: 15px;
-            margin: 20px auto;
             display: inline-block;
+            margin: 25px 0;
+            border: 3px solid #e94560;
+            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.3);
+        }
+
+        .score-item {
+            margin: 15px 0;
             font-size: 1.3em;
+        }
+
+        .score-label {
+            color: #999;
+            margin-right: 10px;
+        }
+
+        .score-value {
+            color: #ffd700;
             font-weight: bold;
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
         }
 
-        .loading {
-            text-align: center;
-            padding: 60px;
-            color: #6c757d;
-        }
+        @media (max-width: 768px) {
+            .game-canvas {
+                height: 350px;
+            }
 
-        .spinner {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #667eea;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
+            .character {
+                width: 50px;
+                height: 60px;
+            }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+            .checkpoint {
+                width: 45px;
+                height: 45px;
+            }
 
-        .empty-leaderboard {
-            text-align: center;
-            padding: 60px;
-            color: #6c757d;
-        }
-
-        .power-up-notification {
-            position: fixed;
-            top: 100px;
-            right: 20px;
-            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-            color: #333;
-            padding: 15px 25px;
-            border-radius: 12px;
-            font-weight: bold;
-            animation: slideInRight 0.5s ease, slideOutRight 0.5s ease 2.5s forwards;
-            z-index: 1000;
-            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.5);
-        }
-
-        @keyframes slideInRight {
-            from { transform: translateX(400px); }
-            to { transform: translateX(0); }
-        }
-
-        @keyframes slideOutRight {
-            from { transform: translateX(0); }
-            to { transform: translateX(400px); }
+            .header h1 {
+                font-size: 2em;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
+    <div class="container">
         <div class="header">
-            <h1>🎮 Quest Arena 🎮</h1>
-            <p>Interactive 2D Adventure Challenge!</p>
-            <div class="live-indicator" id="liveIndicator">
-                <span class="live-dot"></span>
-                <span id="connectionStatus">Connecting...</span>
+            <h1>⚡ QUEST ARENA ⚡</h1>
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-label">👤 Player</div>
+                    <div class="stat-value" id="playerName">-</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">🎯 Quest</div>
+                    <div class="stat-value"><span id="currentQuest">0</span>/<span id="totalQuests">10</span></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">💰 Score</div>
+                    <div class="stat-value" id="score">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">⏱️ Time</div>
+                    <div class="stat-value" id="timer">0:00</div>
+                </div>
             </div>
         </div>
 
-        <div class="game-stats">
-            <div class="stat">
-                <div class="stat-label">Player</div>
-                <div class="stat-value" id="playerName">-</div>
-            </div>
-            <div class="stat">
-                <div class="stat-label">Quest</div>
-                <div class="stat-value"><span id="currentQuest">0</span> / <span id="totalQuests">10</span></div>
-            </div>
-            <div class="stat">
-                <div class="stat-label">Score</div>
-                <div class="stat-value" id="score">0</div>
-            </div>
-            <div class="stat">
-                <div class="stat-label">⭐ Bonus</div>
-                <div class="stat-value" id="bonusStars">0</div>
-            </div>
-            <div class="stat">
-                <div class="stat-label">Time</div>
-                <div class="stat-value" id="timer">0:00</div>
-            </div>
-        </div>
-
-        <div class="game-area" id="gameArea">
-            <div class="loading">
-                <div class="spinner"></div>
-                <p>Loading Quest Arena...</p>
-            </div>
-        </div>
+        <div id="gameArea"></div>
     </div>
 
-    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
         import { getDatabase, ref, push, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
@@ -794,143 +719,146 @@
             projectId: "quest-arena",
             storageBucket: "quest-arena.firebasestorage.app",
             messagingSenderId: "728617530718",
-            appId: "1:728617530718:web:5778ca1c39b2e32c704bcf",
-            measurementId: "G-KTFZRQJ98G"
+            appId: "1:728617530718:web:5778ca1c39b2e32c704bcf"
         };
 
         let app, database;
-        let isConfigured = true;
-        
         try {
             app = initializeApp(firebaseConfig);
             database = getDatabase(app);
-            document.getElementById('connectionStatus').textContent = 'Live 🔴';
-            document.getElementById('liveIndicator').style.background = '#28a745';
         } catch (error) {
-            console.error("Firebase initialization error:", error);
-            isConfigured = false;
+            console.error("Firebase error:", error);
         }
+
+        const characters = [
+            { emoji: '👨‍🦰', name: 'Mario', gender: 'boy' },
+            { emoji: '👩‍🦰', name: 'Lara', gender: 'girl' },
+            { emoji: '👦', name: 'Sonic', gender: 'boy' },
+            { emoji: '👧', name: 'Zelda', gender: 'girl' }
+        ];
 
         const gameState = {
             playerName: '',
+            selectedCharacter: characters[0],
             currentQuest: 0,
             totalQuests: 10,
             score: 0,
-            bonusStars: 0,
+            correctAnswers: 0,
             startTime: null,
             selectedOption: null,
             answered: false,
             playerId: null,
-            monkeyPosition: 50,
-            collectibles: []
+            checkpoints: [],
+            lastCorrectCheckpoint: 0
         };
 
         let timerInterval;
         let leaderboardData = [];
 
+        const stories = {
+            start: "Your coding journey begins. Answer correctly to move forward on your path!",
+            correct: "Excellent! You advance to the next checkpoint.",
+            wrong: "Wrong answer! You're stuck at this checkpoint. Next challenge ahead...",
+            end: "Journey complete! Your coding skills have been tested."
+        };
+
         const questions = [
             {
-                category: "Data Structures",
-                question: "What is the time complexity of searching for an element in a balanced Binary Search Tree?",
-                options: ["O(n)", "O(log n)", "O(n²)", "O(1)"],
+                category: "Computer Networks",
+                question: "Which protocol is used to assign IP addresses automatically to devices on a network?",
+                options: ["DNS", "DHCP", "FTP", "HTTP"],
                 correct: 1
             },
             {
-                category: "Programming",
-                question: "Which of the following is NOT a valid Python data type?",
-                options: ["list", "tuple", "array", "dictionary"],
-                correct: 2
+                category: "Data Structures",
+                question: "What is the worst-case time complexity of Quick Sort?",
+                options: ["O(n log n)", "O(n²)", "O(n)", "O(log n)"],
+                correct: 1
             },
             {
                 category: "Operating Systems",
-                question: "What scheduling algorithm can cause starvation?",
-                options: ["Round Robin", "First Come First Serve", "Priority Scheduling", "Shortest Job First"],
+                question: "Which scheduling algorithm is non-preemptive?",
+                options: ["Round Robin", "FCFS (First Come First Serve)", "Priority Scheduling", "Multilevel Queue"],
+                correct: 1
+            },
+            {
+                category: "DBMS",
+                question: "Which normal form eliminates transitive dependency?",
+                options: ["1NF", "2NF", "3NF", "BCNF"],
                 correct: 2
             },
             {
-                category: "Algorithms",
-                question: "Which sorting algorithm has the best average-case time complexity?",
-                options: ["Bubble Sort", "Merge Sort", "Insertion Sort", "Selection Sort"],
-                correct: 1
+                category: "Data Structures",
+                question: "Which data structure is best suited for implementing a priority queue?",
+                options: ["Array", "Linked List", "Heap", "Stack"],
+                correct: 2
             },
             {
-                category: "Database",
-                question: "What does ACID stand for in database transactions?",
-                options: [
-                    "Atomicity, Consistency, Isolation, Durability",
-                    "Authentication, Consistency, Integrity, Data",
-                    "Atomicity, Calculation, Isolation, Durability",
-                    "Access, Consistency, Isolation, Distribution"
-                ],
-                correct: 0
-            },
-            {
-                category: "Programming",
-                question: "In object-oriented programming, what is polymorphism?",
-                options: [
-                    "Multiple classes with same name",
-                    "Ability of objects to take multiple forms",
-                    "Creating multiple objects",
-                    "Using multiple inheritance"
-                ],
-                correct: 1
-            },
-            {
-                category: "Networks",
-                question: "Which layer of the OSI model handles routing?",
+                category: "Computer Networks",
+                question: "At which layer of the OSI model does the IP protocol operate?",
                 options: ["Physical Layer", "Data Link Layer", "Network Layer", "Transport Layer"],
                 correct: 2
             },
             {
-                category: "Data Structures",
-                question: "Which data structure uses LIFO (Last In First Out) principle?",
-                options: ["Queue", "Stack", "Array", "Linked List"],
-                correct: 1
-            },
-            {
-                category: "Algorithms",
-                question: "What is the purpose of Dynamic Programming?",
+                category: "Operating Systems",
+                question: "What is the main purpose of virtual memory?",
                 options: [
-                    "To write dynamic code",
-                    "To solve problems by breaking them into overlapping subproblems",
-                    "To create dynamic arrays",
-                    "To program dynamically typed languages"
+                    "Increase CPU speed",
+                    "Allow execution of processes larger than physical memory",
+                    "Improve disk performance",
+                    "Reduce power consumption"
                 ],
                 correct: 1
             },
             {
-                category: "Programming",
-                question: "What will be the output of: print(type([]) == list) in Python?",
-                options: ["False", "True", "Error", "None"],
+                category: "DBMS",
+                question: "Which of the following is NOT a property of transactions (ACID)?",
+                options: ["Atomicity", "Consistency", "Isolation", "Dependency"],
+                correct: 3
+            },
+            {
+                category: "Data Structures",
+                question: "In a binary search tree, what is the maximum number of children a node can have?",
+                options: ["1", "2", "3", "Unlimited"],
                 correct: 1
+            },
+            {
+                category: "Computer Networks",
+                question: "What is the default subnet mask for a Class C IP address?",
+                options: ["255.0.0.0", "255.255.0.0", "255.255.255.0", "255.255.255.255"],
+                correct: 2
             }
         ];
 
-        function createParticles(x, y, emoji) {
-            for (let i = 0; i < 10; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.textContent = emoji;
-                particle.style.left = x + 'px';
-                particle.style.top = y + 'px';
-                particle.style.fontSize = (Math.random() * 20 + 20) + 'px';
-                document.querySelector('.game-canvas').appendChild(particle);
-                
-                setTimeout(() => particle.remove(), 2000);
+        function generateCheckpoints() {
+            const checkpoints = [];
+            const canvasWidth = 1200;
+            const canvasHeight = 450;
+            const spacing = canvasWidth / (gameState.totalQuests + 1);
+
+            for (let i = 0; i <= gameState.totalQuests; i++) {
+                const x = spacing * (i + 0.5);
+                const y = canvasHeight - 150 - (i % 3 === 1 ? 80 : 0);
+                checkpoints.push({ x, y, index: i });
             }
+
+            gameState.checkpoints = checkpoints;
         }
 
-        function showPowerUpNotification(message) {
-            const notification = document.createElement('div');
-            notification.className = 'power-up-notification';
-            notification.textContent = message;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => notification.remove(), 3000);
+        function generateStars() {
+            let starsHTML = '<div class="stars">';
+            for (let i = 0; i < 50; i++) {
+                const x = Math.random() * 100;
+                const y = Math.random() * 70;
+                const delay = Math.random() * 3;
+                starsHTML += `<div class="star" style="left: ${x}%; top: ${y}%; animation-delay: ${delay}s;"></div>`;
+            }
+            starsHTML += '</div>';
+            return starsHTML;
         }
 
         function loadLeaderboard() {
-            if (!isConfigured) return;
+            if (!database) return;
             
             const leaderboardRef = ref(database, 'leaderboard');
             onValue(leaderboardRef, (snapshot) => {
@@ -946,33 +874,19 @@
                     if (b.score !== a.score) return b.score - a.score;
                     return a.time - b.time;
                 });
-
-                if (document.querySelector('.start-screen')) {
-                    showStartScreen();
-                }
             });
         }
 
         async function saveToLeaderboard(playerData) {
-            if (!isConfigured) return;
+            if (!database) return;
             
             try {
                 const leaderboardRef = ref(database, 'leaderboard');
                 const newEntry = await push(leaderboardRef, playerData);
                 gameState.playerId = newEntry.key;
-                return newEntry.key;
             } catch (error) {
-                console.error("Error saving to leaderboard:", error);
+                console.error("Error saving:", error);
             }
-        }
-
-        function initGame() {
-            if (!isConfigured) {
-                document.getElementById('gameArea').innerHTML = '<div class="loading"><p>⚠️ Firebase not configured. Running in offline mode.</p></div>';
-                setTimeout(showStartScreen, 2000);
-                return;
-            }
-            showStartScreen();
         }
 
         function showStartScreen() {
@@ -982,86 +896,96 @@
             if (leaderboardData.length > 0) {
                 leaderboardHTML = `
                     <div class="leaderboard">
-                        <h3>🏆 Live Leaderboard</h3>
-                        ${leaderboardData.slice(0, 10).map((entry, index) => {
-                            const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
-                            const entryClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
-                            const minutes = Math.floor(entry.time / 60);
-                            const seconds = entry.time % 60;
-                            
-                            return `
-                                <div class="leaderboard-entry ${entryClass}">
-                                    <div class="rank">${rankEmoji}</div>
-                                    <div class="player-info">
-                                        <div class="player-name">${entry.name}</div>
-                                        <div class="player-stats">
-                                            Time: ${minutes}:${seconds.toString().padStart(2, '0')} | 
-                                            ⭐ ${entry.bonusStars || 0} | 
-                                            Accuracy: ${entry.accuracy}%
-                                        </div>
-                                    </div>
-                                    <div class="player-score">${entry.score} pts</div>
-                                </div>
-                            `;
-                        }).join('')}
-                    </div>
-                `;
-            } else {
-                leaderboardHTML = `
-                    <div class="empty-leaderboard">
-                        <p style="font-size: 4em;">🏁</p>
-                        <p style="font-size: 1.3em;">No players yet. Be the first champion!</p>
+                        <h3>🏆 Top Champions</h3>
+                        ${leaderboardData.slice(0, 5).map((entry, i) => `
+                            <div class="leaderboard-entry ${i === 0 ? 'top' : ''}">
+                                <span class="rank">#${i + 1}</span>
+                                <div class="player-info">${entry.character || '🦸'} ${entry.name}</div>
+                                <span class="player-score">${entry.score}</span>
+                            </div>
+                        `).join('')}
                     </div>
                 `;
             }
 
             gameArea.innerHTML = `
                 <div class="start-screen">
-                    <h2>🐵 Welcome to Quest Arena! 🍌</h2>
-                    <p>Embark on an epic quest! Help the monkey reach the bananas by solving coding challenges.<br>
-                    Collect ⭐ bonus stars along the way for extra points!</p>
-                    <div class="player-name-input">
-                        <input type="text" id="nameInput" placeholder="Enter your hero name" maxlength="20">
+                    <h2>🎮 QUEST ARENA 🎮</h2>
+                    <p>${stories.start}</p>
+                    
+                    <div class="character-selection">
+                        <h3>Choose Your Hero</h3>
+                        <div class="character-grid">
+                            ${characters.map((char, i) => `
+                                <div class="character-option ${i === 0 ? 'selected' : ''}" 
+                                     onclick="selectCharacter(${i})">
+                                    <div class="character-icon">${char.emoji}</div>
+                                    <div class="character-label">${char.name}</div>
+                                </div>
+                            `).join('')}
+                        </div>
                     </div>
-                    <div class="controls">
-                        <button class="btn" onclick="startGame()">🚀 Start Adventure</button>
+                    
+                    <div class="name-input">
+                        <input type="text" id="nameInput" placeholder="Enter your name" maxlength="20">
                     </div>
+                    <button class="btn" onclick="startGame()">Start Adventure</button>
                     ${leaderboardHTML}
                 </div>
             `;
             
-            const nameInput = document.getElementById('nameInput');
-            if (nameInput) {
-                nameInput.addEventListener('keypress', function(e) {
+            const input = document.getElementById('nameInput');
+            if (input) {
+                input.addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') window.startGame();
                 });
-                nameInput.focus();
+                input.focus();
             }
         }
 
+        window.selectCharacter = function(index) {
+            gameState.selectedCharacter = characters[index];
+            
+            const options = document.querySelectorAll('.character-option');
+            options.forEach((opt, i) => {
+                opt.classList.toggle('selected', i === index);
+            });
+        }
+
         window.startGame = function() {
-            const nameInput = document.getElementById('nameInput');
-            const name = nameInput.value.trim();
+            const input = document.getElementById('nameInput');
+            const name = input.value.trim();
             
             if (!name) {
-                alert('Please enter your name, brave hero!');
-                nameInput.focus();
+                alert('Please enter your name');
+                input.focus();
+                return;
+            }
+
+            // Check if name already exists in leaderboard
+            const nameExists = leaderboardData.some(entry => 
+                entry.name.toLowerCase() === name.toLowerCase()
+            );
+            
+            if (nameExists) {
+                alert('This name is already taken! Please choose a different name.');
+                input.focus();
                 return;
             }
 
             gameState.playerName = name;
             gameState.currentQuest = 0;
             gameState.score = 0;
-            gameState.bonusStars = 0;
+            gameState.correctAnswers = 0;
+            gameState.lastCorrectCheckpoint = 0;
             gameState.startTime = Date.now();
             gameState.answered = false;
-            gameState.monkeyPosition = 50;
 
             document.getElementById('playerName').textContent = name;
-            document.getElementById('bonusStars').textContent = '0';
             
+            generateCheckpoints();
             startTimer();
-            showGameCanvas();
+            showGame();
             loadQuestion();
         }
 
@@ -1075,91 +999,107 @@
             }, 1000);
         }
 
-        function showGameCanvas() {
+        function showGame() {
             const gameArea = document.getElementById('gameArea');
-            const progress = (gameState.currentQuest / gameState.totalQuests) * 100;
-            gameState.monkeyPosition = 50 + (progress / 100) * 1100;
-
-            // Generate collectibles positions
-            const collectibles = [];
-            for (let i = 0; i < 3; i++) {
-                collectibles.push({
-                    left: Math.random() * 900 + 200,
-                    bottom: Math.random() * 200 + 150,
-                    emoji: i === 2 ? '💎' : '⭐'
-                });
+            
+            let pathsHTML = '';
+            for (let i = 0; i < gameState.checkpoints.length - 1; i++) {
+                const from = gameState.checkpoints[i];
+                const to = gameState.checkpoints[i + 1];
+                const dx = to.x - from.x;
+                const dy = to.y - from.y;
+                const length = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                
+                let pathClass = 'path-line';
+                if (i < gameState.lastCorrectCheckpoint) {
+                    pathClass += ' completed';
+                } else if (i < gameState.currentQuest && i >= gameState.lastCorrectCheckpoint) {
+                    pathClass += ' failed';
+                }
+                
+                pathsHTML += `
+                    <div class="${pathClass}" 
+                         style="left: ${from.x}px; top: ${from.y}px; 
+                                width: ${length}px; transform: rotate(${angle}deg);">
+                    </div>
+                `;
             }
-            gameState.collectibles = collectibles;
 
-            gameArea.innerHTML = `
-                <div class="progress-container">
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progressFill" style="width: ${progress}%">
-                            Quest ${gameState.currentQuest}/${gameState.totalQuests}
-                        </div>
-                        <div class="progress-segments">
-                            ${Array(gameState.totalQuests - 1).fill(0).map((_, i) => 
-                                `<div class="segment" style="left: ${((i + 1) / gameState.totalQuests) * 100}%"></div>`
-                            ).join('')}
+            let checkpointsHTML = '';
+            gameState.checkpoints.forEach((cp, i) => {
+                let className = 'checkpoint';
+                if (i <= gameState.lastCorrectCheckpoint && i < gameState.currentQuest) {
+                    className += ' completed';
+                } else if (i === gameState.currentQuest) {
+                    className += ' active';
+                } else if (i < gameState.currentQuest && i > gameState.lastCorrectCheckpoint) {
+                    className += ' failed';
+                }
+                
+                checkpointsHTML += `
+                    <div class="${className}" 
+                         style="left: ${cp.x - 27.5}px; top: ${cp.y - 27.5}px;">
+                        <div class="checkpoint-inner">
+                            ${i === gameState.totalQuests ? '★' : i + 1}
                         </div>
                     </div>
+                `;
+            });
+
+            const charPos = gameState.checkpoints[gameState.lastCorrectCheckpoint];
+            
+            gameArea.innerHTML = `
+                <div class="game-canvas">
+                    ${generateStars()}
+                    <div class="path-container">
+                        ${pathsHTML}
+                        ${checkpointsHTML}
+                        <div class="character" id="character" 
+                             style="left: ${charPos.x - 30}px; top: ${charPos.y - 70}px; font-size: 3.5em;">
+                            ${gameState.selectedCharacter.emoji}
+                        </div>
+                    </div>
+                    <div class="ground"></div>
                 </div>
-                <div class="game-canvas" id="gameCanvas">
-                    <div class="cloud cloud1"></div>
-                    <div class="cloud cloud2"></div>
-                    
-                    ${collectibles.map((col, i) => 
-                        `<div class="collectible" id="collect${i}" 
-                              style="left: ${col.left}px; bottom: ${col.bottom}px;"
-                              onclick="collectItem(${i}, '${col.emoji}')">
-                            ${col.emoji}
-                        </div>`
-                    ).join('')}
-                    
-                    <div class="obstacle" style="left: 400px; bottom: 120px;">🔥</div>
-                    <div class="obstacle" style="left: 700px; bottom: 120px;">⚡</div>
-                    
-                    <div class="platform platform-mid" style="left: 300px; bottom: 180px;"></div>
-                    <div class="platform platform-mid" style="left: 600px; bottom: 220px;"></div>
-                    <div class="platform platform-mid" style="left: 900px; bottom: 180px;"></div>
-                    
-                    <div class="monkey" id="monkey" style="left: ${gameState.monkeyPosition}px; bottom: 100px;">🐵</div>
-                    <div class="cage" style="right: 30px; bottom: 100px;">🍌</div>
-                    <div class="platform ground"></div>
+                <div class="story-box">
+                    <div class="story-text" id="storyText">${stories.start}</div>
                 </div>
                 <div id="questionArea"></div>
             `;
         }
 
-        window.collectItem = function(index, emoji) {
-            const collectible = document.getElementById('collect' + index);
-            if (collectible && !collectible.classList.contains('collected')) {
-                collectible.classList.add('collected');
+        function moveCharacter(isCorrect) {
+            const character = document.getElementById('character');
+            if (!character) return;
+
+            if (isCorrect) {
+                character.classList.add('walking');
+                const newPos = gameState.checkpoints[gameState.lastCorrectCheckpoint];
+                character.style.left = (newPos.x - 30) + 'px';
+                character.style.top = (newPos.y - 70) + 'px';
                 
-                const points = emoji === '💎' ? 50 : 10;
-                const stars = emoji === '💎' ? 3 : 1;
-                
-                gameState.score += points;
-                gameState.bonusStars += stars;
-                
-                document.getElementById('score').textContent = gameState.score;
-                document.getElementById('bonusStars').textContent = gameState.bonusStars;
-                
-                createParticles(
-                    collectible.offsetLeft + 20,
-                    collectible.offsetTop + 20,
-                    emoji
-                );
-                
-                showPowerUpNotification(`+${points} points! ${emoji === '💎' ? 'Diamond bonus!' : 'Star collected!'}`);
-                
-                setTimeout(() => collectible.remove(), 500);
+                setTimeout(() => {
+                    character.classList.remove('walking');
+                }, 1000);
+            } else {
+                character.classList.add('stuck');
+                setTimeout(() => {
+                    character.classList.remove('stuck');
+                }, 1500);
+            }
+        }
+
+        function updateStory(isCorrect) {
+            const storyText = document.getElementById('storyText');
+            if (storyText) {
+                storyText.textContent = isCorrect ? stories.correct : stories.wrong;
             }
         }
 
         function loadQuestion() {
             if (gameState.currentQuest >= gameState.totalQuests) {
-                showCompletionScreen();
+                showEndScreen();
                 return;
             }
 
@@ -1170,25 +1110,25 @@
             gameState.answered = false;
 
             questionArea.innerHTML = `
-                <div class="question-container">
+                <div class="question-box">
                     <div class="question-header">
-                        <span class="question-category">${question.category}</span>
-                        <span class="question-number">Quest ${gameState.currentQuest + 1} of ${gameState.totalQuests}</span>
+                        <div class="question-category">${question.category}</div>
+                        <div class="question-number">Challenge ${gameState.currentQuest + 1}/${gameState.totalQuests}</div>
                     </div>
                     <div class="question-text">${question.question}</div>
-                    <div class="options" id="options">
-                        ${question.options.map((option, index) => `
-                            <div class="option" onclick="selectOption(${index})">
-                                ${String.fromCharCode(65 + index)}. ${option}
+                    <div class="options">
+                        ${question.options.map((opt, i) => `
+                            <div class="option" onclick="selectOption(${i})">
+                                ${String.fromCharCode(65 + i)}. ${opt}
                             </div>
                         `).join('')}
                     </div>
-                    <button class="btn submit-btn" onclick="submitAnswer()">⚡ Submit Answer</button>
+                    <button class="btn" onclick="submitAnswer()">Submit Answer</button>
                     <div id="feedback"></div>
                 </div>
             `;
 
-            document.getElementById('currentQuest').textContent = gameState.currentQuest;
+            document.getElementById('currentQuest').textContent = gameState.currentQuest + 1;
         }
 
         window.selectOption = function(index) {
@@ -1208,7 +1148,7 @@
         window.submitAnswer = function() {
             if (gameState.answered) return;
             if (gameState.selectedOption === null) {
-                alert('Please select an answer, hero!');
+                alert('Please select an answer');
                 return;
             }
 
@@ -1216,60 +1156,58 @@
             const question = questions[gameState.currentQuest];
             const isCorrect = gameState.selectedOption === question.correct;
             
-            const options = document.querySelectorAll('.option');
-            options.forEach((opt, i) => {
-                if (i === question.correct) {
-                    opt.classList.add('correct');
-                } else if (i === gameState.selectedOption && !isCorrect) {
-                    opt.classList.add('incorrect');
-                }
-            });
-
-            const feedback = document.getElementById('feedback');
-            const monkey = document.getElementById('monkey');
+            const selectedOpt = document.querySelectorAll('.option')[gameState.selectedOption];
+            const correctOpt = document.querySelectorAll('.option')[question.correct];
             
             if (isCorrect) {
+                selectedOpt.classList.add('correct');
                 gameState.score += 100;
-                gameState.currentQuest++;
+                gameState.correctAnswers++;
+                gameState.lastCorrectCheckpoint++;
                 document.getElementById('score').textContent = gameState.score;
                 
-                feedback.innerHTML = '✅ Correct! The monkey advances! 🎉';
-                feedback.className = 'feedback correct';
+                const feedback = document.getElementById('feedback');
+                feedback.className = 'feedback success';
+                feedback.textContent = '✅ Correct! Moving forward...';
 
-                monkey.classList.add('jumping');
-                
-                createParticles(monkey.offsetLeft + 30, monkey.offsetTop + 30, '✨');
+                updateStory(true);
+                gameState.currentQuest++;
+                moveCharacter(true);
                 
                 setTimeout(() => {
-                    monkey.classList.remove('jumping');
-                    showGameCanvas();
+                    showGame();
                     loadQuestion();
-                }, 2000);
+                }, 1800);
             } else {
-                feedback.innerHTML = `❌ Incorrect! The correct answer was: <strong>${String.fromCharCode(65 + question.correct)}. ${question.options[question.correct]}</strong><br>The monkey tries another path...`;
-                feedback.className = 'feedback incorrect';
+                selectedOpt.classList.add('wrong');
+                
+                const feedback = document.getElementById('feedback');
+                feedback.className = 'feedback error';
+                feedback.textContent = '❌ Wrong! You stay at checkpoint ' + (gameState.lastCorrectCheckpoint + 1) + '. Next challenge...';
+
+                updateStory(false);
+                gameState.currentQuest++;
+                moveCharacter(false);
                 
                 setTimeout(() => {
-                    gameState.currentQuest++;
-                    showGameCanvas();
+                    showGame();
                     loadQuestion();
-                }, 3000);
+                }, 2200);
             }
         }
 
-        async function showCompletionScreen() {
+        async function showEndScreen() {
             clearInterval(timerInterval);
             
             const elapsed = Math.floor((Date.now() - gameState.startTime) / 1000);
             const minutes = Math.floor(elapsed / 60);
             const seconds = elapsed % 60;
-            const timeString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-            const accuracy = Math.round((gameState.score / (gameState.totalQuests * 100)) * 100);
+            const accuracy = Math.round((gameState.correctAnswers / gameState.totalQuests) * 100);
 
             const playerData = {
                 name: gameState.playerName,
+                character: gameState.selectedCharacter.emoji,
                 score: gameState.score,
-                bonusStars: gameState.bonusStars,
                 time: elapsed,
                 accuracy: accuracy,
                 timestamp: Date.now()
@@ -1278,95 +1216,44 @@
             await saveToLeaderboard(playerData);
 
             setTimeout(() => {
-                const currentRank = leaderboardData.findIndex(entry => 
-                    entry.id === gameState.playerId
-                ) + 1;
-
-                let rankBadge = '';
-                let rankMessage = '';
-                
-                if (currentRank === 1) {
-                    rankBadge = '🥇';
-                    rankMessage = 'CHAMPION! You\'re #1! 👑';
-                } else if (currentRank === 2) {
-                    rankBadge = '🥈';
-                    rankMessage = 'SILVER MEDAL! Incredible! 🌟';
-                } else if (currentRank === 3) {
-                    rankBadge = '🥉';
-                    rankMessage = 'BRONZE MEDAL! Awesome! ⭐';
-                } else {
-                    rankBadge = '🏆';
-                    rankMessage = `Ranked #${currentRank}! Well done!`;
-                }
+                const rank = leaderboardData.findIndex(e => e.id === gameState.playerId) + 1;
 
                 const gameArea = document.getElementById('gameArea');
                 gameArea.innerHTML = `
-                    <div class="completion-screen">
-                        <div class="rank-badge">${rankBadge}</div>
+                    <div class="end-screen">
                         <h2>🎉 Quest Complete! 🎉</h2>
-                        <div class="current-rank">${rankMessage}</div>
-                        <p style="font-size: 1.4em; color: #495057; margin-bottom: 30px;">
-                            Congratulations, <strong>${gameState.playerName}</strong>! 🐵🍌<br>
-                            The monkey has reached the bananas!
-                        </p>
-                        <div style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); 
-                                    border-radius: 15px; padding: 30px; display: inline-block; 
-                                    margin-bottom: 30px; border: 3px solid #dee2e6;">
-                            <div style="font-size: 1.3em; margin-bottom: 15px;">
-                                <strong>Final Score:</strong> ${gameState.score} points
+                        <p>${stories.end}</p>
+                        
+                        <div class="score-card">
+                            <div class="score-item">
+                                <span class="score-label">Final Score:</span>
+                                <span class="score-value">${gameState.score}</span>
                             </div>
-                            <div style="font-size: 1.3em; margin-bottom: 15px;">
-                                <strong>⭐ Bonus Stars:</strong> ${gameState.bonusStars}
+                            <div class="score-item">
+                                <span class="score-label">Time:</span>
+                                <span class="score-value">${minutes}:${seconds.toString().padStart(2, '0')}</span>
                             </div>
-                            <div style="font-size: 1.3em; margin-bottom: 15px;">
-                                <strong>Time:</strong> ${timeString}
+                            <div class="score-item">
+                                <span class="score-label">Accuracy:</span>
+                                <span class="score-value">${accuracy}%</span>
                             </div>
-                            <div style="font-size: 1.3em;">
-                                <strong>Accuracy:</strong> ${accuracy}%
+                            <div class="score-item">
+                                <span class="score-label">Rank:</span>
+                                <span class="score-value">#${rank}</span>
                             </div>
-                        </div>
-                        <br>
-                        <div class="controls">
-                            <button class="btn" onclick="location.reload()">📊 View Leaderboard</button>
-                            <button class="btn" onclick="startGame()">🔄 Play Again</button>
                         </div>
                         
-                        <div class="leaderboard">
-                            <h3>🏆 Top Champions</h3>
-                            ${leaderboardData.slice(0, 5).map((entry, index) => {
-                                const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`;
-                                const entryClass = index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '';
-                                const entryMinutes = Math.floor(entry.time / 60);
-                                const entrySeconds = entry.time % 60;
-                                const isCurrentPlayer = entry.id === gameState.playerId;
-                                
-                                return `
-                                    <div class="leaderboard-entry ${entryClass}" style="${isCurrentPlayer ? 'border: 4px solid #667eea; box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);' : ''}">
-                                        <div class="rank">${rankEmoji}</div>
-                                        <div class="player-info">
-                                            <div class="player-name">${entry.name} ${isCurrentPlayer ? '(You!) 👈' : ''}</div>
-                                            <div class="player-stats">
-                                                Time: ${entryMinutes}:${entrySeconds.toString().padStart(2, '0')} | 
-                                                ⭐ ${entry.bonusStars || 0} | 
-                                                Accuracy: ${entry.accuracy}%
-                                            </div>
-                                        </div>
-                                        <div class="player-score">${entry.score} pts</div>
-                                    </div>
-                                `;
-                            }).join('')}
+                        <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                            <button class="btn" onclick="location.reload()">View Leaderboard</button>
+                           
                         </div>
                     </div>
                 `;
             }, 500);
         }
 
-        if (isConfigured) {
-            loadLeaderboard();
-            initGame();
-        } else {
-            initGame();
-        }
+        loadLeaderboard();
+        showStartScreen();
     </script>
 </body>
 </html>
