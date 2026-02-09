@@ -1078,24 +1078,28 @@
         }
 
         function loadLeaderboard() {
-            if (!database) return;
-            
-            const leaderboardRef = ref(database, 'leaderboard');
-            onValue(leaderboardRef, (snapshot) => {
-                leaderboardData = [];
-                snapshot.forEach((childSnapshot) => {
-                    leaderboardData.push({
-                        id: childSnapshot.key,
-                        ...childSnapshot.val()
-                    });
-                });
-                
-                leaderboardData.sort((a, b) => {
-                    if (b.score !== a.score) return b.score - a.score;
-                    return a.time - b.time;
-                });
+    if (!database) return;
+
+    const leaderboardRef = ref(database, 'leaderboard');
+    onValue(leaderboardRef, (snapshot) => {
+        leaderboardData = [];
+
+        snapshot.forEach((childSnapshot) => {
+            leaderboardData.push({
+                id: childSnapshot.key,
+                ...childSnapshot.val()
             });
-        }
+        });
+
+        leaderboardData.sort((a, b) => {
+            if (b.score !== a.score) return b.score - a.score;
+            return a.time - b.time;
+        });
+
+        // 🔥 THIS IS THE MISSING LINE
+        showStartScreen();
+    });
+}
 
         async function saveToLeaderboard(playerData) {
             if (!database) return;
@@ -1489,7 +1493,6 @@
                         
                         <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
                             <button class="btn" onclick="location.reload()">View Leaderboard</button>
-                            <button class="btn" onclick="startGame()">Play Again</button>
                         </div>
                     </div>
                 `;
@@ -1497,7 +1500,6 @@
         }
 
         loadLeaderboard();
-        showStartScreen();
     </script>
 </body>
 </html>
